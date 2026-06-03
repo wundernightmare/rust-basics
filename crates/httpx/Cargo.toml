@@ -19,6 +19,5 @@ anyhow.workspace             = true
 prometheus = { workspace = true, features = ["process"] }
 
 [dev-dependencies]
-reqwest.workspace = true
-tokio.workspace   = true
-tower.workspace   = true
+tokio.workspace = true
+tower.workspace = true

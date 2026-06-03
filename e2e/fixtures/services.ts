@@ -32,10 +32,13 @@ export const SERVICES: ServiceSpec[] = [
     bin: path.join(TARGET, "heartbeat"),
     healthUrl: "http://localhost:8081/healthz",
     // Fast tick so the heartbeat_beats_total assertion doesn't wait long.
+    // Point the resilient-client upstream check at the ping service so the
+    // heartbeat_upstream_checks_total metric exercises that integration.
     env: {
       HEARTBEAT_ADDR: "0.0.0.0:8081",
       HEARTBEAT_INTERVAL_MS: "200",
       HEARTBEAT_LOG_LEVEL: "warn",
+      HEARTBEAT_UPSTREAM_URL: "http://localhost:8080/healthz",
     },
   },
 ];

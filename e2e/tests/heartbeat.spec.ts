@@ -19,4 +19,16 @@ test.describe("heartbeat worker", () => {
     const second = await readBeats(request);
     expect(second).toBeGreaterThan(first);
   });
+
+  // resilient-client integration: the worker polls ping's /healthz each tick
+  // (HEARTBEAT_UPSTREAM_URL) and records the outcome.
+  test("records successful upstream checks via resilient-client", async ({ request }) => {
+    await new Promise((r) => setTimeout(r, 700)); // let a few checks happen
+    const body = await (await request.get(`${HEARTBEAT_URL}/metrics`)).text();
+    const okLine = body
+      .split("\n")
+      .find((l) => l.startsWith('heartbeat_upstream_checks_total{result="ok"}'));
+    expect(okLine, "ok upstream checks present").toBeTruthy();
+    expect(Number(okLine!.split(/\s+/)[1])).toBeGreaterThan(0);
+  });
 });

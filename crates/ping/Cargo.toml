@@ -12,6 +12,8 @@ path = "src/main.rs"
 
 [dependencies]
 httpx.workspace      = true
+ratelimit.workspace  = true
+secrets.workspace    = true
 tokio.workspace      = true
 axum.workspace       = true
 serde.workspace      = true

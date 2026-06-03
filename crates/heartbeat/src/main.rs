@@ -11,12 +11,21 @@ use heartbeat::{Config, Worker};
 async fn main() -> anyhow::Result<()> {
     let cfg = Config::from_env()?;
     httpx::init_tracing(&cfg.log_level, &cfg.log_format);
-    tracing::info!(addr = %cfg.addr, interval_ms = cfg.interval_ms, "heartbeat starting");
+    tracing::info!(
+        addr = %cfg.addr,
+        interval_ms = cfg.interval_ms,
+        upstream = cfg.upstream_url.is_some(),
+        "heartbeat starting"
+    );
 
     let server = httpx::Server::new(cfg.httpx());
-    // The worker registers its counter on the server's registry, so beats show
-    // up on /metrics alongside the HTTP metrics.
-    let worker = Worker::new(cfg.interval(), &server.metrics.registry)?;
+    // The worker registers its counters on the server's registry, so beats and
+    // upstream-check results show up on /metrics alongside the HTTP metrics.
+    let worker = Worker::new(
+        cfg.interval(),
+        &server.metrics.registry,
+        cfg.upstream_url.clone(),
+    )?;
 
     tokio::select! {
         result = server.run() => result?,

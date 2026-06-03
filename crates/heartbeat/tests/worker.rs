@@ -22,7 +22,7 @@ fn beats(registry: &Registry) -> f64 {
 #[tokio::test]
 async fn worker_beats_and_increments() {
     let registry = Registry::new();
-    let worker = Worker::new(Duration::from_millis(20), &registry).unwrap();
+    let worker = Worker::new(Duration::from_millis(20), &registry, None).unwrap();
 
     let handle = tokio::spawn(worker.run());
     tokio::time::sleep(Duration::from_millis(130)).await;
@@ -40,6 +40,6 @@ fn duplicate_registration_errors() {
     // Two workers on the same registry would double-register the counter; the
     // second must fail rather than panic.
     let registry = Registry::new();
-    assert!(Worker::new(Duration::from_secs(1), &registry).is_ok());
-    assert!(Worker::new(Duration::from_secs(1), &registry).is_err());
+    assert!(Worker::new(Duration::from_secs(1), &registry, None).is_ok());
+    assert!(Worker::new(Duration::from_secs(1), &registry, None).is_err());
 }

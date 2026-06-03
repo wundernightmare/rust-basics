@@ -11,10 +11,11 @@ name = "heartbeat"
 path = "src/main.rs"
 
 [dependencies]
-httpx.workspace      = true
-tokio.workspace      = true
-prometheus.workspace = true
-serde.workspace      = true
-envy.workspace       = true
-anyhow.workspace     = true
-tracing.workspace    = true
+httpx.workspace            = true
+resilient-client.workspace = true
+tokio.workspace            = true
+prometheus.workspace       = true
+serde.workspace            = true
+envy.workspace             = true
+anyhow.workspace           = true
+tracing.workspace          = true

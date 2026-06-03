@@ -25,6 +25,10 @@ pub struct Config {
     pub log_format: String,
     #[serde(default = "default_interval_ms")]
     pub interval_ms: u64,
+    /// Optional upstream URL polled each tick via the resilient client
+    /// (`HEARTBEAT_UPSTREAM_URL`). Unset ⇒ no upstream check.
+    #[serde(default)]
+    pub upstream_url: Option<String>,
 }
 
 fn default_addr() -> String {

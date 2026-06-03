@@ -9,8 +9,8 @@
 
 # Service crates that produce a binary.
 SERVICES := "ping heartbeat"
-# Every crate, in dependency order (lib first).
-CRATES := "httpx ping heartbeat"
+# Every crate, in dependency order (libs first).
+CRATES := "httpx resilient-client ratelimit secrets ping heartbeat"
 
 # Show all available recipes
 default:
@@ -149,6 +149,15 @@ ci-full: fmt-check lint test doc-check deny
 
 httpx +args:
     just --justfile crates/httpx/justfile {{args}}
+
+resilient-client +args:
+    just --justfile crates/resilient-client/justfile {{args}}
+
+ratelimit +args:
+    just --justfile crates/ratelimit/justfile {{args}}
+
+secrets +args:
+    just --justfile crates/secrets/justfile {{args}}
 
 ping +args:
     just --justfile crates/ping/justfile {{args}}

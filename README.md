@@ -17,13 +17,26 @@ cache (see [Worktrees](#worktrees-multi-branch-dev)), exactly like tracehub-edge
 
 | Crate                         | Kind         | Port(s)                   | One-liner                                                                                         |
 | ----------------------------- | ------------ | ------------------------- | ------------------------------------------------------------------------------------------------- |
-| [`ping`](crates/ping)             | HTTP service | `:8080`                   | axum ping/pong service. `GET /ping` → `pong`, with `?msg=` echo + `/version`.                     |
-| [`heartbeat`](crates/heartbeat)   | Worker       | `:8081` (health/metrics)  | tokio ticker worker — emits a beat + bumps `heartbeat_beats_total` every interval.                |
+| [`ping`](crates/ping)             | HTTP service | `:8080`                   | axum ping/pong service (`?msg=` echo, `/version`); rate-limited + optional `/secure`.             |
+| [`heartbeat`](crates/heartbeat)   | Worker       | `:8081` (health/metrics)  | tokio ticker worker — bumps `heartbeat_beats_total` each interval; optional upstream health check. |
 | [`httpx`](crates/httpx)           | Library      | —                         | Shared axum scaffolding: server + tracing, Prometheus metrics, health, graceful shutdown, config. |
+| [`resilient-client`](crates/resilient-client) | Library | —              | Policy-per-target HTTP client: GCRA rate limiting, circuit breaking, jittered retry, timeouts.    |
+| [`ratelimit`](crates/ratelimit)   | Library      | —                         | Keyed GCRA rate limiter (`governor`); `check` (reject) + `until_ready` (throttle).                |
+| [`secrets`](crates/secrets)       | Library      | —                         | AES-256-GCM seal/open, auto-redacting `SecretString`, lock-free secret cache, constant-time compare. |
 
-The dependency graph is `ping`, `heartbeat` → `httpx`. Both services — an
-HTTP-first one and a worker — reuse the same crate for their `/healthz`,
-`/readyz` and `/metrics` surface, so a worker is as observable as a server.
+The dependency graph: `ping`, `heartbeat` → `httpx`; `ping` → `ratelimit` +
+`secrets`; `heartbeat` → `resilient-client`. Both services reuse `httpx` for
+their `/healthz`, `/readyz` and `/metrics` surface, so a worker is as observable
+as a server.
+
+### Library-crate integration demos
+
+- **ratelimit** → `ping` guards `/ping` with a per-client (X-Forwarded-For /
+  X-Real-IP) GCRA limit; set `PING_RATE_LIMIT_RPS` (0 disables). Excess → `429`.
+- **secrets** → `ping` exposes `/secure` when `PING_API_KEY` is set: the key is
+  held as a redacted `SecretString`; the Bearer token is compared in constant time.
+- **resilient-client** → `heartbeat` polls `HEARTBEAT_UPSTREAM_URL` each tick
+  (timeout + retry + circuit breaker), recording `heartbeat_upstream_checks_total{result}`.
 
 ---
 

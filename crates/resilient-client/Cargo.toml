@@ -1,0 +1,27 @@
+[package]
+name        = "resilient-client"
+version     = "0.1.0"
+description = "Policy-per-target HTTP client: GCRA rate limiting, circuit breaking, jittered retry, timeouts, Prometheus metrics and graceful shutdown"
+edition.workspace      = true
+rust-version.workspace = true
+publish.workspace      = true
+
+# Dependencies mirror tracehub-edge's resilient-http-client (core subset; the
+# optional DNS-cache / adaptive-concurrency / response-cache adapters are out
+# of scope here).
+[dependencies]
+tokio.workspace         = true
+reqwest.workspace       = true
+governor.workspace      = true
+dashmap.workspace       = true
+rand.workspace          = true
+serde.workspace         = true
+serde_yaml_ng.workspace = true
+thiserror.workspace     = true
+tracing.workspace       = true
+prometheus.workspace    = true
+bytes.workspace         = true
+
+[dev-dependencies]
+tokio = { workspace = true }
+axum.workspace  = true
