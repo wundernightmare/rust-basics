@@ -27,12 +27,16 @@ allow = [
     "ISC",
     "Unicode-3.0",
     "Zlib",
+    "BSL-1.0",              # Boost — permissive, build-dep only
+    "CDLA-Permissive-2.0", # webpki-roots (via rustls TLS stack)
+    "CC0-1.0",             # tiny-keccak etc. (ahash transitive)
 ]
 
 # ── Bans ────────────────────────────────────────────────────────────────────
 [bans]
-multiple-versions = "warn"   # duplicate transitive versions: warn, don't block
-wildcards         = "deny"   # no `version = "*"` in our manifests
+multiple-versions   = "warn"   # duplicate transitive versions: warn, don't block
+wildcards           = "deny"   # no `version = "*"` in our manifests…
+allow-wildcard-paths = true    # …except internal path deps (httpx, ratelimit, …)
 
 # ── Sources ────────────────────────────────────────────────────────────────
 [sources]

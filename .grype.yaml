@@ -4,6 +4,16 @@
 # graph (also covered by `just deny` / `just audit`).
 #
 # Document every waiver below with a removal trigger.
-ignore: []
-#  - vulnerability: RUSTSEC-YYYY-NNNN
+ignore:
+  # Base-OS (Debian) CVEs the distro marks won't-fix / not-fixed — e.g. glibc
+  # (libc6) advisories on the distroless/cc base. Not patchable at our layer:
+  # mitigated by periodic base-image refresh, not a code change. (The Go sibling
+  # uses distroless/static and has no libc, so this only bites the cc base.)
+  - fix-state: wont-fix
+    package:
+      type: deb
+  - fix-state: not-fixed
+    package:
+      type: deb
+#  - vulnerability: RUSTSEC-YYYY-NNNN   # crate-dep waiver template
 #    reason: "transitive only, not reachable; remove when <crate> bumps past vX.Y.Z"
