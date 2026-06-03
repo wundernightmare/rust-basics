@@ -1,0 +1,20 @@
+[package]
+name        = "heartbeat"
+version     = "0.1.0"
+description = "Minimal background heartbeat worker (rust-basics)"
+edition.workspace      = true
+rust-version.workspace = true
+publish.workspace      = true
+
+[[bin]]
+name = "heartbeat"
+path = "src/main.rs"
+
+[dependencies]
+httpx.workspace      = true
+tokio.workspace      = true
+prometheus.workspace = true
+serde.workspace      = true
+envy.workspace       = true
+anyhow.workspace     = true
+tracing.workspace    = true

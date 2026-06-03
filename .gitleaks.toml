@@ -1,0 +1,16 @@
+# gitleaks config — secret scanning across the working tree + history.
+# Run via `just sec-secrets`. Inherited from tracehub-edge: extends the bundled
+# default ruleset; add per-path allowlist entries for dev-only fixtures that
+# look like credentials rather than tagging literals inline.
+title = "rust-basics gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Paths and patterns that are safe by construction"
+paths = [
+  '''(^|/)Cargo\.lock$''',      # crate checksums are not secrets
+  '''(^|/)pnpm-lock\.yaml$''',  # lockfile hashes
+  '''\.env\.example$''',
+]

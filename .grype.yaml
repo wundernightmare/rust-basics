@@ -1,0 +1,9 @@
+# grype config — container image CVE scanning. Used by `just docker-scan` /
+# `docker-scan-ci` (the CI variant passes --fail-on high). The distroless/cc
+# base ships almost no OS packages, so findings are nearly always in the crate
+# graph (also covered by `just deny` / `just audit`).
+#
+# Document every waiver below with a removal trigger.
+ignore: []
+#  - vulnerability: RUSTSEC-YYYY-NNNN
+#    reason: "transitive only, not reachable; remove when <crate> bumps past vX.Y.Z"

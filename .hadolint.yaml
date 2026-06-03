@@ -1,0 +1,15 @@
+# hadolint config for rust-basics Dockerfiles (inherited from tracehub-edge).
+# `just sec-iac` lints every crates/*/Dockerfile.
+#
+# Failure threshold = error: block on truly broken patterns; warnings stay
+# visible but don't fail the recipe.
+failure-threshold: error
+
+ignored:
+  - DL3008 # pin apt versions — base-image refresh cycles handle CVE patching
+  - DL3059 # multiple consecutive RUN — deliberate for cargo-chef cache layers
+
+trustedRegistries:
+  - docker.io
+  - gcr.io
+  - ghcr.io

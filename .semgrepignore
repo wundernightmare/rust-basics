@@ -1,0 +1,4 @@
+# Paths semgrep skips. Run via `just sec-sast`.
+target/
+e2e/node_modules/
+benchmarks/results/

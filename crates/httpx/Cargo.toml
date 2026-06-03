@@ -1,0 +1,24 @@
+[package]
+name        = "httpx"
+version     = "0.1.0"
+description = "Shared axum HTTP scaffolding for rust-basics services"
+edition.workspace      = true
+rust-version.workspace = true
+publish.workspace      = true
+
+[dependencies]
+tokio.workspace              = true
+axum.workspace               = true
+tower-http.workspace         = true
+tracing.workspace            = true
+tracing-subscriber.workspace = true
+serde.workspace              = true
+serde_json.workspace         = true
+envy.workspace               = true
+anyhow.workspace             = true
+prometheus = { workspace = true, features = ["process"] }
+
+[dev-dependencies]
+reqwest.workspace = true
+tokio.workspace   = true
+tower.workspace   = true

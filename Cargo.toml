@@ -1,0 +1,65 @@
+[workspace]
+members = [
+    "crates/httpx",
+    "crates/ping",
+    "crates/heartbeat",
+]
+resolver = "2"
+
+# ── Shared package metadata ────────────────────────────────────────────────────
+[workspace.package]
+edition      = "2021"
+rust-version = "1.85"
+publish      = false
+
+# ── Shared build profiles ─────────────────────────────────────────────────────
+[profile.release]
+lto           = "thin"   # thin LTO: safe for local dev + CI (low RAM)
+codegen-units = 1
+opt-level     = 3
+panic         = "abort"
+strip         = true
+
+# Production Docker profile — full DWARF kept in Cargo; the Dockerfile splits +
+# strips. Modelled on tracehub-edge's `dist` profile.
+[profile.dist]
+inherits        = "release"
+lto             = "thin"
+codegen-units   = 16
+debug           = 2
+strip           = "none"
+
+# ── Shared dependencies ────────────────────────────────────────────────────────
+# Rule (inherited from tracehub-edge): a dep goes here when it appears in ≥2
+# member crates at the same version. Crates reference these with
+# `{ workspace = true [, features = [...]] }`.
+[workspace.dependencies]
+# Internal
+httpx = { path = "crates/httpx" }
+
+# Runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP / Web
+axum       = { version = "0.8", features = ["http1", "json", "macros", "tokio", "tracing", "matched-path"] }
+tower      = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["trace"] }
+
+# Observability
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+prometheus         = "0.14"
+
+# Serialization
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Config
+envy = "0.4"
+
+# Error handling
+anyhow    = "1"
+thiserror = "2"
+
+# Dev/test
+reqwest = { version = "0.12", default-features = false, features = ["json"] }

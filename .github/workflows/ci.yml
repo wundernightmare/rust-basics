@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+# The toolchain version is single-sourced from rust-toolchain.toml: rustup
+# reads it automatically on the first cargo invocation and installs the pinned
+# channel + clippy/rustfmt components. No hard-coded version in this file.
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo fmt --all -- --check
+
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: clippy (pedantic/perf/suspicious denied)
+        run: cargo clippy --workspace --all-targets -- -D warnings -D clippy::pedantic -D clippy::perf -D clippy::suspicious
+      - name: test
+        run: cargo test --workspace
+
+  gate:
+    runs-on: ubuntu-latest
+    needs: [fmt, lint-test]
+    if: always()
+    steps:
+      - run: |
+          [ "${{ needs.fmt.result }}" = "success" ] || exit 1
+          [ "${{ needs.lint-test.result }}" = "success" ] || exit 1
+          echo "CI gate passed"
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: read pinned Node version from mise.toml
+        run: echo "NODE_VERSION=$(sed -n 's/^node[[:space:]]*=[[:space:]]*"\(.*\)"/\1/p' mise.toml)" >> "$GITHUB_ENV"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: build release binaries
+        run: cargo build --release --bin ping --bin heartbeat
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile || pnpm install
+      - name: playwright e2e
+        run: pnpm --filter @rust-basics/e2e test

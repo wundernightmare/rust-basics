@@ -1,0 +1,36 @@
+# Git hooks for the rust-basics workspace (inherited from tracehub-edge).
+# Optional — enable per-clone with `just hooks-install`. Bypass once with
+# `LEFTHOOK=0 git commit …`; CI runs the same checks, so nothing is lost.
+#
+# `glob` scopes each command to commits that touched matching files, so a
+# pure-docs commit doesn't burn the cache on a no-op clippy run.
+
+# ── pre-commit ──────────────────────────────────────────────────────────────
+# Fast correctness gates.
+pre-commit:
+  parallel: true
+  commands:
+    rust-fmt:
+      glob: "*.rs"
+      run: cargo fmt --all -- --check
+    rust-clippy:
+      glob: "*.rs"
+      run: cargo clippy --workspace --all-targets -- -D warnings -D clippy::pedantic -D clippy::perf -D clippy::suspicious
+    ts-fmt:
+      glob: "e2e/**/*.{ts,json,md}"
+      run: cd e2e && pnpm format:check
+    ts-lint:
+      glob: "e2e/**/*.ts"
+      run: cd e2e && pnpm lint
+
+# ── pre-push ────────────────────────────────────────────────────────────────
+# Heavier checks — too slow for every commit, fast enough before a push.
+pre-push:
+  commands:
+    test:
+      run: cargo test --workspace
+    doc-check:
+      glob: "*.rs"
+      run: RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+    deny:
+      run: cargo deny check advisories bans licenses 2>/dev/null || echo "cargo-deny not installed — skipping (run 'just setup')"

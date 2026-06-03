@@ -1,0 +1,33 @@
+# ── Rust ──────────────────────────────────────────────────────────────────────
+# Build output (per-worktree; sccache is the shared cross-worktree cache).
+/target/
+**/*.rs.bk
+
+# Cargo.lock IS committed — this workspace produces binaries, so we pin the
+# exact dependency graph for reproducible builds.
+
+# ── Node / e2e ────────────────────────────────────────────────────────────────
+node_modules/
+e2e/playwright-report/
+e2e/test-results/
+e2e/.e2e-state.json
+e2e/dist/
+
+# ── Benchmarks ────────────────────────────────────────────────────────────────
+benchmarks/results/
+
+# ── Local run state (just up / host-services-spawn.sh) ────────────────────────
+.run/
+
+# ── Secrets (machine-local; mirrored into worktrees by the `wt` helper) ───────
+.env
+.env.*
+!.env.example
+cosign.key
+*.pem
+
+# ── Editors / OS ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+*.log

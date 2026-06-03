@@ -1,0 +1,10 @@
+# osv-scanner config — OSV.dev advisories against Cargo.lock + pnpm-lock.yaml.
+# Run via `just sec-deps`. Overlaps with `just deny` / `just audit` on purpose:
+# different databases catch different CVEs.
+#
+# Document every ignore with the affected package, the reason, and a removal
+# trigger so waivers don't outlive their justification:
+#
+# [[IgnoredVulns]]
+# id = "RUSTSEC-YYYY-NNNN"
+# reason = "transitive only, not reachable; remove when <crate> bumps past vX.Y.Z"
