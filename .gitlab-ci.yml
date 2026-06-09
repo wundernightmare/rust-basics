@@ -1,0 +1,133 @@
+# GitLab CI — mirrors .github/workflows/{ci,appsec,docker}.yml.
+#
+# rust-basics is a Cargo workspace; jobs operate on every member at once
+# (cargo … --workspace), so there's no per-crate fan-out. Container-backed
+# integration tests (testcontainers) + Docker builds use a Docker-in-Docker
+# service. Toolchain pinned via rust-toolchain.toml (channel 1.95); AppSec tool
+# versions mirror mise.toml.
+
+stages:
+  - check
+  - test
+  - security
+  - docker
+
+default:
+  image: rust:1.95-bookworm
+
+# ── check: rustfmt gate + clippy (pedantic/perf/suspicious denied) ────────────
+fmt:
+  stage: check
+  script:
+    - rustup component add rustfmt
+    - cargo fmt --all -- --check
+
+clippy:
+  stage: check
+  script:
+    - rustup component add clippy
+    - cargo clippy --workspace --all-targets -- -D warnings -D clippy::pedantic -D clippy::perf -D clippy::suspicious
+
+# ── test: unit + testcontainers integration (Valkey / Kafka) ──────────────────
+test:
+  stage: test
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    TESTCONTAINERS_HOST_OVERRIDE: docker
+    TESTCONTAINERS_RYUK_DISABLED: "true"
+    CI: "true"
+  script:
+    - cargo test --workspace
+
+# ── e2e: Playwright API suite against the spawned release binaries + deps ──────
+e2e:
+  stage: test
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+    - apt-get install -y nodejs docker.io
+    - corepack enable && corepack prepare pnpm@latest --activate
+  script:
+    - docker compose -f docker/deps.yml up -d
+    - cargo build --release --bin ping --bin heartbeat --bin tasks --bin consumer
+    - pnpm install --frozen-lockfile || pnpm install
+    - cd e2e && E2E_WITH_DEPS=1 pnpm test
+  after_script:
+    - docker compose -f docker/deps.yml down -v || true
+
+# ── security (AppSec) — mirrors appsec.yml ────────────────────────────────────
+secret-detection:
+  stage: security
+  image:
+    name: zricethezav/gitleaks:latest
+    entrypoint: [""]
+  script:
+    - gitleaks detect --source . --config .gitleaks.toml --verbose
+
+sast:
+  stage: security
+  image:
+    name: semgrep/semgrep:latest
+    entrypoint: [""]
+  script:
+    - semgrep ci --config p/owasp-top-ten --config p/rust
+
+dependency-scanning:
+  stage: security
+  image: golang:1.25-bookworm
+  script:
+    - go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.3.8
+    - "$(go env GOPATH)/bin/osv-scanner scan --config=osv-scanner.toml --recursive ."
+
+cargo-deny:
+  stage: security
+  script:
+    - cargo install cargo-deny --locked
+    - cargo deny check
+
+hadolint:
+  stage: security
+  image:
+    name: hadolint/hadolint:latest-debian
+    entrypoint: [""]
+  parallel:
+    matrix:
+      - DOCKERFILE: [crates/ping/Dockerfile, crates/heartbeat/Dockerfile, crates/tasks/Dockerfile, crates/consumer/Dockerfile]
+  script:
+    - hadolint --config .hadolint.yaml "$DOCKERFILE"
+
+# ── docker: build each image, generate an SBOM, scan for CVEs ─────────────────
+docker-build-scan:
+  stage: docker
+  image: docker:27
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    GRYPE_DB_VALIDATE_AGE: "false"
+  parallel:
+    matrix:
+      - SERVICE: [ping, heartbeat, tasks, consumer]
+  before_script:
+    - apk add --no-cache curl bash
+    - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin v1.44.0
+    - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin v0.112.0
+  script:
+    - docker build -f "crates/$SERVICE/Dockerfile" -t "rust-basics-$SERVICE:ci" .
+    - syft "rust-basics-$SERVICE:ci" -o cyclonedx-json=sbom-$SERVICE.json
+    - grype "rust-basics-$SERVICE:ci" --config .grype.yaml --fail-on high
+  artifacts:
+    paths:
+      - sbom-*.json
+    expire_in: 1 week
