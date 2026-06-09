@@ -7,7 +7,7 @@
 #   just stack-up      # brings deps up, then builds + runs the app images
 #   just stack-down    # tears everything (app + deps + volumes) down
 #
-# The app containers reach the broker at kafka:29092 (the BROKER listener) and
+# The app containers reach the broker at redpanda:29092 (the INTERNAL listener) and
 # Valkey by its compose service name — see docker/deps.yml.
 
 name: rust-basics-stack
@@ -23,7 +23,7 @@ services:
     environment:
       TASKS_ADDR: "0.0.0.0:8082"
       TASKS_VALKEY_URL: redis://valkey:6379
-      TASKS_KAFKA_BROKERS: kafka:29092
+      TASKS_KAFKA_BROKERS: redpanda:29092
       TASKS_KAFKA_TOPIC: tasks.events
       TASKS_LOG_FORMAT: json
     ports:
@@ -40,7 +40,7 @@ services:
     restart: on-failure
     environment:
       CONSUMER_ADDR: "0.0.0.0:8083"
-      CONSUMER_KAFKA_BROKERS: kafka:29092
+      CONSUMER_KAFKA_BROKERS: redpanda:29092
       CONSUMER_KAFKA_TOPIC: tasks.events
       CONSUMER_KAFKA_GROUP: tasks-consumer
       CONSUMER_LOG_FORMAT: json

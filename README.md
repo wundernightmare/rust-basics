@@ -236,7 +236,7 @@ just stack-down
 `tasks`/`consumer` build the same way; `rdkafka`'s librdkafka (and zlib, via the
 `libz-static` feature) is vendored and statically linked, so they too run on the
 `cc-debian12` base with nothing beyond glibc/libgcc. `docker/deps.yml` runs
-Valkey + Kafka (KRaft, dual listeners so both host processes and in-network
+Valkey + Redpanda (the Kafka API broker, dual listeners so both host processes and in-network
 containers reach the broker); `docker/stack.yml` runs the app images against it.
 
 ---
