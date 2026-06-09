@@ -44,3 +44,22 @@ README; this file is only the high-signal, easy-to-miss bits.
   reason — test the assembled app without binding a socket).
 - Graceful shutdown: `httpx::Server::run` handles SIGINT/SIGTERM; the heartbeat
   worker rides the same signal via `tokio::select!` against the server future.
+- **`httpx::Health` checks are synchronous** (`Fn() -> Result<(), String>`), so
+  async dependencies (Valkey/Kafka) can't ping inside the readiness handler. The
+  `valkey`/`kafka` crates instead run a background probe task that updates an
+  `Arc<AtomicBool>`; `readiness_check()` returns a sync closure that just reads
+  the flag. Reuse that pattern for any new async-backed check.
+
+## Data services (Valkey + Kafka)
+
+- `tasks`/`consumer` (and the `valkey`/`kafka`/`otelx` crates) need
+  Valkey + Kafka. **No relational database** in this workspace — Valkey is the
+  `tasks` store. `just infra-up` runs `docker/deps.yml` (singleton, project
+  `rust-basics-deps`); `just stack-up` runs the app images on that network.
+- Their integration tests use testcontainers, so `just <crate> test` needs a
+  Docker daemon; the tests no-op (return early) when Docker is absent. `ping`,
+  `heartbeat`, `httpx`, `resilient-client`, `ratelimit`, `secrets` stay
+  dependency-free.
+- **rdkafka**: vendored librdkafka (no system lib needed), with `libz-static` in
+  the workspace dep so zlib links statically — otherwise the binary needs
+  `libz.so.1` which `distroless/cc` does not ship. ssl/sasl stay off (PLAINTEXT).

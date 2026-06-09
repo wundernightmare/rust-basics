@@ -1,0 +1,56 @@
+# The application stack — tasks + consumer — wired to the backing services from
+# docker/deps.yml. The in-container counterpart to running the binaries on the
+# host: it proves the production images talk to real Valkey and Kafka over a
+# shared network.
+#
+# Usage (from the master worktree root):
+#   just stack-up      # brings deps up, then builds + runs the app images
+#   just stack-down    # tears everything (app + deps + volumes) down
+#
+# The app containers reach the broker at kafka:29092 (the BROKER listener) and
+# Valkey by its compose service name — see docker/deps.yml.
+
+name: rust-basics-stack
+
+services:
+  tasks:
+    build:
+      context: ..
+      dockerfile: crates/tasks/Dockerfile
+    image: rust-basics-tasks:dev
+    container_name: rust-basics-tasks
+    restart: on-failure
+    environment:
+      TASKS_ADDR: "0.0.0.0:8082"
+      TASKS_VALKEY_URL: redis://valkey:6379
+      TASKS_KAFKA_BROKERS: kafka:29092
+      TASKS_KAFKA_TOPIC: tasks.events
+      TASKS_LOG_FORMAT: json
+    ports:
+      - "8082:8082"
+    networks:
+      - deps
+
+  consumer:
+    build:
+      context: ..
+      dockerfile: crates/consumer/Dockerfile
+    image: rust-basics-consumer:dev
+    container_name: rust-basics-consumer
+    restart: on-failure
+    environment:
+      CONSUMER_ADDR: "0.0.0.0:8083"
+      CONSUMER_KAFKA_BROKERS: kafka:29092
+      CONSUMER_KAFKA_TOPIC: tasks.events
+      CONSUMER_KAFKA_GROUP: tasks-consumer
+      CONSUMER_LOG_FORMAT: json
+    ports:
+      - "8083:8083"
+    networks:
+      - deps
+
+networks:
+  # The network docker/deps.yml creates (compose names it "<project>_default").
+  deps:
+    name: rust-basics-deps_default
+    external: true

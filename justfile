@@ -8,9 +8,9 @@
 # per-crate justfiles (delegated below).
 
 # Service crates that produce a binary.
-SERVICES := "ping heartbeat"
+SERVICES := "ping heartbeat tasks consumer"
 # Every crate, in dependency order (libs first).
-CRATES := "httpx resilient-client ratelimit secrets ping heartbeat"
+CRATES := "httpx resilient-client ratelimit secrets valkey kafka otelx ping heartbeat tasks consumer"
 
 # Show all available recipes
 default:
@@ -165,11 +165,49 @@ ping +args:
 heartbeat +args:
     just --justfile crates/heartbeat/justfile {{args}}
 
+valkey +args:
+    just --justfile crates/valkey/justfile {{args}}
+
+kafka +args:
+    just --justfile crates/kafka/justfile {{args}}
+
+otelx +args:
+    just --justfile crates/otelx/justfile {{args}}
+
+tasks +args:
+    just --justfile crates/tasks/justfile {{args}}
+
+consumer +args:
+    just --justfile crates/consumer/justfile {{args}}
+
 # Run a recipe in every crate's justfile, in dependency order
 each RECIPE:
     #!/usr/bin/env bash
     set -euo pipefail
     for c in {{CRATES}}; do echo "══ $c: {{RECIPE}}"; just --justfile "crates/$c/justfile" {{RECIPE}}; done
+
+# ── Infra dependencies (Valkey + Kafka via docker compose) ─────────────────────
+
+# Bring up the backing services (Valkey, Kafka) in the background
+infra-up:
+    docker compose -f docker/deps.yml up -d
+
+# Stop and remove the backing services + their volumes
+infra-down:
+    docker compose -f docker/deps.yml down -v
+
+# Tail the backing-service logs
+infra-logs:
+    docker compose -f docker/deps.yml logs -f
+
+# Build the app images, then run the whole stack (deps + tasks + consumer)
+stack-up: infra-up
+    docker compose -f docker/stack.yml up -d --build
+
+# Tear the whole stack down (app + deps + volumes)
+stack-down:
+    docker compose -f docker/stack.yml down -v
+    docker compose -f docker/deps.yml down -v
 
 # ── Local bring-up (host services) ────────────────────────────────────────────
 
@@ -202,6 +240,10 @@ e2e-ui: e2e-build
 e2e-filter GREP: e2e-build
     cd e2e && pnpm test --grep "{{GREP}}"
 
+# Run the e2e suite including tasks + consumer (needs `just infra-up` first)
+e2e-deps: e2e-build
+    cd e2e && E2E_WITH_DEPS=1 pnpm test
+
 # Open the last Playwright report
 e2e-report:
     cd e2e && pnpm report
@@ -210,6 +252,11 @@ e2e-report:
 
 bench-smoke: release
     ./benchmarks/run-k6.sh smoke
+
+# Load-test the tasks service (needs the deps up: `just infra-up`).
+# PROFILE is one of smoke|load|stress|soak.
+bench-tasks PROFILE="smoke": release
+    ./benchmarks/run-k6-tasks.sh {{PROFILE}}
 
 bench-load: release
     ./benchmarks/run-k6.sh load

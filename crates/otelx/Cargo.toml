@@ -1,0 +1,19 @@
+[package]
+name        = "otelx"
+version     = "0.1.0"
+description = "Shared OpenTelemetry tracing setup for rust-basics services"
+edition.workspace      = true
+rust-version.workspace = true
+publish.workspace      = true
+
+[dependencies]
+opentelemetry.workspace                      = true
+opentelemetry_sdk.workspace                  = true
+opentelemetry-otlp.workspace                 = true
+opentelemetry-semantic-conventions.workspace = true
+tracing-opentelemetry.workspace              = true
+tracing.workspace                            = true
+tracing-subscriber.workspace                 = true
+serde.workspace                              = true
+envy.workspace                               = true
+anyhow.workspace                             = true

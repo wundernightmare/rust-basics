@@ -6,6 +6,11 @@ members = [
     "crates/resilient-client",
     "crates/ratelimit",
     "crates/secrets",
+    "crates/valkey",
+    "crates/kafka",
+    "crates/otelx",
+    "crates/tasks",
+    "crates/consumer",
 ]
 resolver = "2"
 
@@ -42,6 +47,27 @@ httpx            = { path = "crates/httpx" }
 resilient-client = { path = "crates/resilient-client" }
 ratelimit        = { path = "crates/ratelimit" }
 secrets          = { path = "crates/secrets" }
+valkey           = { path = "crates/valkey" }
+kafka            = { path = "crates/kafka" }
+otelx            = { path = "crates/otelx" }
+
+# Data services — Valkey cache, Kafka broker (reliable, maintained drivers).
+# `redis` (redis-rs) speaks RESP to a Valkey server; `rdkafka` wraps librdkafka
+# (vendored + statically built, so the binary stays self-contained on cc-debian12).
+redis   = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+# libz-static links zlib into the binary so it runs on distroless/cc (which ships
+# glibc + libgcc but not libz.so.1). ssl/sasl stay off — PLAINTEXT only.
+rdkafka = { version = "0.37", features = ["tokio", "libz-static"] }
+futures = "0.3"
+uuid    = { version = "1", features = ["v4"] }
+
+# Distributed tracing (OpenTelemetry). The versions across the otel ecosystem are
+# tightly coupled — bump them together.
+opentelemetry                   = "0.27"
+opentelemetry_sdk               = { version = "0.27", features = ["rt-tokio"] }
+opentelemetry-otlp              = { version = "0.27", features = ["grpc-tonic", "trace"] }
+opentelemetry-semantic-conventions = "0.27"
+tracing-opentelemetry           = "0.28"
 
 # Runtime
 tokio       = { version = "1", features = ["full"] }
@@ -87,3 +113,5 @@ thiserror = "2"
 
 # Dev/test
 tempfile = "3"
+testcontainers         = "0.25"
+testcontainers-modules = { version = "0.13", features = ["kafka"] }

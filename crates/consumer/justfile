@@ -1,0 +1,74 @@
+# consumer justfile
+# Install: cargo install just | brew install just | mise use just
+# Usage:   just <recipe>      | just --list
+
+# Show all available recipes
+default:
+    @just --list --unsorted
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+
+# Type-check without codegen (fastest feedback)
+check:
+    cargo check --all-targets
+
+# Debug build
+build:
+    cargo build
+
+# Optimised release build (thin LTO + strip)
+release:
+    cargo build --release
+
+# Build and run the service locally
+run *args:
+    cargo run -- {{args}}
+
+# ── Test ──────────────────────────────────────────────────────────────────────
+
+# Run all tests (no live services required)
+test *args:
+    cargo test {{args}}
+
+# Run tests and print output even on success
+test-verbose:
+    cargo test -- --nocapture
+
+# Run tests matching a name filter
+test-filter FILTER:
+    cargo test {{FILTER}}
+
+# ── Lint & format ─────────────────────────────────────────────────────────────
+
+# Clippy — deny warnings + pedantic/perf/suspicious lint groups
+lint:
+    cargo clippy --all-targets \
+      -- -D warnings -D clippy::pedantic -D clippy::perf -D clippy::suspicious
+
+# Clippy — fix automatically where possible
+lint-fix:
+    cargo clippy --all-targets --fix --allow-dirty
+
+# Format all source files in-place
+fmt:
+    cargo fmt
+
+# Check formatting without modifying files (CI gate)
+fmt-check:
+    cargo fmt -- --check
+
+# ── Docs ──────────────────────────────────────────────────────────────────────
+
+# Build and open documentation
+doc:
+    cargo doc --no-deps --open
+
+# Build docs and check for broken intra-doc links (CI gate)
+doc-check:
+    RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
+
+# ── CI ────────────────────────────────────────────────────────────────────────
+
+# Full per-crate CI pipeline: format → lint → test
+ci: fmt-check lint test
+    @echo "CI passed"

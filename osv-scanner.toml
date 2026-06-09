@@ -8,3 +8,23 @@
 # [[IgnoredVulns]]
 # id = "RUSTSEC-YYYY-NNNN"
 # reason = "transitive only, not reachable; remove when <crate> bumps past vX.Y.Z"
+
+# astral-tokio-tar + rustls-pemfile: pulled ONLY by the `testcontainers`
+# dev-dependency (container-image extraction in integration tests); never in a
+# shipped binary. testcontainers 0.25.2 pins astral-tokio-tar ^0.5.6 and bollard
+# pulls rustls-pemfile. Remove when testcontainers/bollard bump past them.
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0066"
+reason = "astral-tokio-tar via testcontainers dev-dep only; not in shipped binary"
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0112"
+reason = "astral-tokio-tar via testcontainers dev-dep only; not in shipped binary"
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0113"
+reason = "astral-tokio-tar via testcontainers dev-dep only; not in shipped binary"
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0145"
+reason = "astral-tokio-tar via testcontainers dev-dep only; not in shipped binary"
+[[IgnoredVulns]]
+id = "RUSTSEC-2025-0134"
+reason = "rustls-pemfile (unmaintained) via testcontainers/bollard dev-dep only"

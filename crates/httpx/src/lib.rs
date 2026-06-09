@@ -40,10 +40,12 @@ mod config;
 mod health;
 mod logging;
 mod metrics;
+mod problem;
 mod server;
 
-pub use config::Config;
+pub use config::{load_yaml, Config};
 pub use health::Health;
 pub use logging::init_tracing;
 pub use metrics::Metrics;
+pub use problem::{Problem, PROBLEM_CONTENT_TYPE};
 pub use server::Server;

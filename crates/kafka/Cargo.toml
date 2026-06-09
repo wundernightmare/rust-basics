@@ -1,0 +1,20 @@
+[package]
+name        = "kafka"
+version     = "0.1.0"
+description = "Shared Kafka producer/consumer (rdkafka) for rust-basics services"
+edition.workspace      = true
+rust-version.workspace = true
+publish.workspace      = true
+
+[dependencies]
+rdkafka.workspace = true
+tokio.workspace   = true
+serde.workspace   = true
+envy.workspace    = true
+anyhow.workspace  = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
+testcontainers.workspace = true
+testcontainers-modules.workspace = true
