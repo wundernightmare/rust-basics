@@ -2,3 +2,7 @@
 target/
 e2e/node_modules/
 benchmarks/results/
+# Test code: integration tests legitimately use `unsafe { std::env::set_var }`
+# (set_var is unsafe in the Rust 2024 edition) — not a production concern.
+**/tests/
+*_test.rs
