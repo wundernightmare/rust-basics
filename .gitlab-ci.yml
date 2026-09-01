@@ -3,7 +3,7 @@
 # rust-basics is a Cargo workspace; jobs operate on every member at once
 # (cargo … --workspace), so there's no per-crate fan-out. Container-backed
 # integration tests (testcontainers) + Docker builds use a Docker-in-Docker
-# service. Toolchain pinned via rust-toolchain.toml (channel 1.95); AppSec tool
+# service. Toolchain pinned via rust-toolchain.toml (channel 1.98); AppSec tool
 # versions mirror mise.toml.
 
 stages:
@@ -13,7 +13,7 @@ stages:
   - docker
 
 default:
-  image: rust:1.95-bookworm
+  image: rust:1.98-bookworm
 
 # ── check: rustfmt gate + clippy (pedantic/perf/suspicious denied) ────────────
 fmt:

@@ -40,8 +40,8 @@ jobs:
 
   # Run cargo-deny on a normal (gnu) runner via install-action rather than the
   # EmbarkStudios container action: that container is musl, so rust-toolchain.toml's
-  # `channel = "1.95"` resolves to an uninstalled `1.95-…-musl` toolchain and
-  # cargo metadata fails. On the gnu runner rustup auto-installs 1.95.
+  # `channel = "1.98"` resolves to an uninstalled `1.98-…-musl` toolchain and
+  # cargo metadata fails. On the gnu runner rustup auto-installs 1.98.
   cargo-deny:
     runs-on: ubuntu-latest
     steps:

@@ -67,7 +67,7 @@ rust-basics/                ← bare-repo CONTAINER (.bare + .git + .cargo/confi
 └── master/                 ← canonical worktree (this tree)
     ├── Cargo.toml          ← workspace: members, profiles, shared deps
     ├── Cargo.lock          ← committed (this workspace ships binaries)
-    ├── rust-toolchain.toml ← pins the toolchain (channel 1.95 + clippy/rustfmt)
+    ├── rust-toolchain.toml ← pins the toolchain (channel 1.98 + clippy/rustfmt)
     ├── justfile            ← workspace task runner (delegation + `each`)
     ├── mise.toml           ← pinned tools (rust, sccache, node, k6, AppSec)
     ├── deny.toml           ← cargo-deny config
@@ -275,7 +275,7 @@ stack and every worktree reaches it at `localhost:<port>`.
 
 ## Toolchain notes
 
-- **Rust** is pinned in `rust-toolchain.toml` (channel `1.95`, with `clippy` +
+- **Rust** is pinned in `rust-toolchain.toml` (channel `1.98`, with `clippy` +
   `rustfmt`); `mise.toml` also pins it for the shims. That file is the single
   source of truth for the toolchain version in CI too.
 - **just** drives everything (inherited from tracehub-edge).

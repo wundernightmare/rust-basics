@@ -17,7 +17,7 @@
 #   CONSUMER_OTEL_ENABLED   true to export traces
 # ─────────────────────────────────────────────────────────────────────────────
 
-ARG RUST_VERSION=1.95
+ARG RUST_VERSION=1.98
 ARG DEBIAN_CODENAME=bookworm
 
 FROM rust:${RUST_VERSION}-${DEBIAN_CODENAME} AS chef
