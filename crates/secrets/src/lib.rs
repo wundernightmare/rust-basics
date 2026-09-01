@@ -26,7 +26,7 @@
 mod cache;
 
 use aes_gcm::aead::{Aead, KeyInit};
-use aes_gcm::{Aes256Gcm, Key, Nonce};
+use aes_gcm::{Aes256Gcm, Nonce};
 use base64::engine::general_purpose::STANDARD as BASE64;
 use base64::Engine as _;
 use thiserror::Error;
@@ -82,7 +82,10 @@ impl SealingKey {
     }
 
     fn cipher(&self) -> Aes256Gcm {
-        Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&self.0))
+        // aes-gcm 0.11 deprecated `from_slice` (it panicked on a length
+        // mismatch). `&[u8; N] -> &Array` is an infallible `From`, so the key
+        // length is now checked at compile time.
+        Aes256Gcm::new((&self.0).into())
     }
 }
 
@@ -95,7 +98,7 @@ pub fn seal(key: &SealingKey, plaintext: &[u8]) -> Vec<u8> {
     let nonce_bytes: [u8; NONCE_LEN] = rand::random();
     let ciphertext = key
         .cipher()
-        .encrypt(Nonce::from_slice(&nonce_bytes), plaintext)
+        .encrypt((&nonce_bytes).into(), plaintext)
         .expect("AES-256-GCM encryption is infallible for valid inputs");
 
     let mut out = Vec::with_capacity(NONCE_LEN + ciphertext.len());
@@ -110,8 +113,13 @@ pub fn open(key: &SealingKey, sealed: &[u8]) -> Result<Vec<u8>, SecretsError> {
         return Err(SecretsError::Malformed("shorter than nonce"));
     }
     let (nonce, ciphertext) = sealed.split_at(NONCE_LEN);
+    // The split guarantees `nonce` is exactly NONCE_LEN, but the slice length
+    // isn't known to the type system, so this goes through TryFrom.
+    let nonce: &Nonce<_> = nonce
+        .try_into()
+        .map_err(|_| SecretsError::Malformed("nonce length"))?;
     key.cipher()
-        .decrypt(Nonce::from_slice(nonce), ciphertext)
+        .decrypt(nonce, ciphertext)
         .map_err(|_| SecretsError::Decrypt)
 }
 

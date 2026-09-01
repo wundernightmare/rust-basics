@@ -28,8 +28,7 @@ use opentelemetry::trace::TracerProvider as _;
 use opentelemetry::KeyValue;
 use opentelemetry_otlp::{SpanExporter, WithExportConfig};
 use opentelemetry_sdk::propagation::TraceContextPropagator;
-use opentelemetry_sdk::runtime;
-use opentelemetry_sdk::trace::{Sampler, TracerProvider};
+use opentelemetry_sdk::trace::{Sampler, SdkTracerProvider};
 use opentelemetry_sdk::Resource;
 use opentelemetry_semantic_conventions::resource::{SERVICE_NAME, SERVICE_VERSION};
 use tracing_subscriber::layer::SubscriberExt;
@@ -40,7 +39,7 @@ use tracing_subscriber::{EnvFilter, Layer};
 /// drop. Keep it alive for the lifetime of the process (bind it in `main`); when
 /// tracing export is disabled it carries nothing.
 pub struct TracingGuard {
-    provider: Option<TracerProvider>,
+    provider: Option<SdkTracerProvider>,
 }
 
 impl Drop for TracingGuard {
@@ -83,15 +82,21 @@ pub fn init(cfg: &Config, log_level: &str, log_format: &str) -> anyhow::Result<T
         .with_endpoint(&cfg.otel_endpoint)
         .build()?;
 
-    let provider = TracerProvider::builder()
-        .with_batch_exporter(exporter, runtime::Tokio)
+    // 0.32: the batch processor owns its own thread, so `with_batch_exporter`
+    // no longer takes a runtime, and Resource is built rather than constructed.
+    let provider = SdkTracerProvider::builder()
+        .with_batch_exporter(exporter)
         .with_sampler(Sampler::ParentBased(Box::new(Sampler::TraceIdRatioBased(
             cfg.otel_sampler_ratio,
         ))))
-        .with_resource(Resource::new(vec![
-            KeyValue::new(SERVICE_NAME, cfg.otel_service_name.clone()),
-            KeyValue::new(SERVICE_VERSION, env!("CARGO_PKG_VERSION")),
-        ]))
+        .with_resource(
+            Resource::builder()
+                .with_attributes([
+                    KeyValue::new(SERVICE_NAME, cfg.otel_service_name.clone()),
+                    KeyValue::new(SERVICE_VERSION, env!("CARGO_PKG_VERSION")),
+                ])
+                .build(),
+        )
         .build();
 
     let tracer = provider.tracer("rust-basics");
