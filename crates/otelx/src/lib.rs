@@ -10,7 +10,7 @@
 //! It is kept out of `httpx` on purpose: `ping`/`heartbeat` stay free of the
 //! `OpenTelemetry` dependency tree, while services that span process boundaries
 //! (`tasks` → Kafka → `consumer`) opt in by calling [`init`] instead of
-//! [`httpx::init_tracing`]. Export is also opt-in at runtime — with
+//! `httpx::init_tracing`. Export is also opt-in at runtime — with
 //! `OTEL_ENABLED=false` (the default) only the fmt layer and propagator are
 //! installed, so the same binary runs with or without a collector.
 
@@ -52,7 +52,7 @@ impl Drop for TracingGuard {
 }
 
 /// Install the global `tracing` subscriber and the W3C trace-context
-/// propagator. `log_level`/`log_format` mirror [`httpx::init_tracing`]
+/// propagator. `log_level`/`log_format` mirror `httpx::init_tracing`
 /// (`debug|info|warn|error`, `json|text`); when `cfg.otel_enabled` is set, spans
 /// are additionally exported to the OTLP endpoint. Calling this more than once
 /// is a no-op (the second init is ignored), keeping tests safe.

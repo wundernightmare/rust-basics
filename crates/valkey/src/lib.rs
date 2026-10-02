@@ -8,7 +8,7 @@
 //! - typed key/value + JSON helpers and a small set-of-ids API (enough to back
 //!   `crates/tasks`' store on Valkey alone — no separate database);
 //! - a **synchronous** readiness check ([`Cache::readiness_check`]) that plugs
-//!   straight into [`httpx::Health`]. Because that registry runs checks
+//!   straight into `httpx::Health`. Because that registry runs checks
 //!   synchronously, a background task probes the server every few seconds and
 //!   the check just reads the cached health flag — no blocking in the readiness
 //!   handler.
@@ -128,7 +128,7 @@ impl Cache {
         Ok(conn.smembers(key).await?)
     }
 
-    /// A synchronous readiness probe for [`httpx::Health`]: returns `Ok(())`
+    /// A synchronous readiness probe for `httpx::Health`: returns `Ok(())`
     /// while the background probe last saw the server reachable.
     pub fn readiness_check(&self) -> impl Fn() -> Result<(), String> + Send + Sync + Clone {
         let healthy = Arc::clone(&self.healthy);
