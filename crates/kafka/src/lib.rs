@@ -10,7 +10,7 @@
 //!   record to an async handler and commits only what the handler accepts, so a
 //!   failing handler leaves the record for redelivery (at-least-once).
 //!
-//! Both expose a **synchronous** [`httpx::Health`]-compatible readiness check
+//! Both expose a **synchronous** `httpx::Health`-compatible readiness check
 //! backed by a background metadata probe (the readiness registry runs checks
 //! synchronously, so a periodic probe updates a flag the check just reads).
 
@@ -137,7 +137,7 @@ impl Producer {
         Ok(())
     }
 
-    /// A synchronous readiness probe for [`httpx::Health`].
+    /// A synchronous readiness probe for `httpx::Health`.
     pub fn readiness_check(&self) -> impl Fn() -> Result<(), String> + Send + Sync + Clone {
         readiness(&self.healthy)
     }
@@ -209,7 +209,7 @@ impl Consumer {
         }
     }
 
-    /// A synchronous readiness probe for [`httpx::Health`].
+    /// A synchronous readiness probe for `httpx::Health`.
     pub fn readiness_check(&self) -> impl Fn() -> Result<(), String> + Send + Sync + Clone {
         readiness(&self.healthy)
     }
