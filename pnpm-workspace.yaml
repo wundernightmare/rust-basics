@@ -19,3 +19,14 @@ catalog:
   tsx: ^4.23.0
   prettier: ^3.9.0
   oxlint: ^1.80.0
+
+# Supply-chain hardening (semgrep p/owasp-top-ten `package_managers.pnpm.*`
+# enforces all three; `.npmrc` `min-release-age=7` is the npm twin). A
+# frozen-lockfile install of an already-compliant lockfile is unaffected; they
+# bite on `pnpm update` / a fresh resolution:
+# - a newly published version has to be 7 days old before it resolves;
+# - transitive deps may only come from the registry (no git / tarball URLs);
+# - a dependency update cannot silently downgrade these settings.
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+trustPolicy: no-downgrade

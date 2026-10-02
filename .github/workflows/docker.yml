@@ -18,12 +18,12 @@ jobs:
       matrix:
         service: [ping, heartbeat, tasks, consumer]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Build image (load locally for scan)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
           file: crates/${{ matrix.service }}/Dockerfile
@@ -33,14 +33,14 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
       - name: SBOM (syft)
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           image: rust-basics-${{ matrix.service }}:ci
           format: cyclonedx-json
           output-file: sbom-${{ matrix.service }}.json
 
       - name: CVE scan (grype, fail on high)
-        uses: anchore/scan-action@v4
+        uses: anchore/scan-action@64a33b277ea7a1215a3c142735a1091341939ff5 # v4.1.2
         with:
           image: rust-basics-${{ matrix.service }}:ci
           fail-build: true
@@ -54,7 +54,7 @@ jobs:
       # Push happens on master / tags — wire to your registry of choice.
       # - name: Login + push
       #   if: github.event_name == 'push'
-      #   uses: docker/build-push-action@v6
+      #   uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
       #   with:
       #     context: .
       #     file: crates/${{ matrix.service }}/Dockerfile
