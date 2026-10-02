@@ -55,6 +55,9 @@ impl Metrics {
 
         // Process-level metrics (process_cpu_seconds_total, _resident_memory_…).
         // Best-effort: on platforms without /proc this registration is skipped.
+        // prometheus 0.14 compiles the collector on Linux only, so elsewhere
+        // (macOS dev machines) it is skipped at compile time.
+        #[cfg(target_os = "linux")]
         let _ = registry.register(Box::new(
             prometheus::process_collector::ProcessCollector::for_self(),
         ));
