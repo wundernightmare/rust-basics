@@ -26,7 +26,7 @@
 # CI for byte-for-byte reproducibility and tag-mutation protection.
 # ─────────────────────────────────────────────────────────────────────────────
 
-ARG RUST_VERSION=1.98
+ARG RUST_VERSION=1.99
 ARG DEBIAN_CODENAME=bookworm
 
 # ── Stage 1 – chef ─────────────────────────────────────────────────────────────

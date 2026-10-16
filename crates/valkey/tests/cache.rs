@@ -98,5 +98,8 @@ async fn json_and_set_index() {
     assert_eq!(cache.set_members("widgets").await.unwrap(), vec!["7"]);
 
     cache.set_remove("widgets", "7").await.unwrap();
-    assert!(cache.set_members("widgets").await.unwrap().is_empty());
+    assert_eq!(
+        cache.set_members("widgets").await.unwrap(),
+        Vec::<String>::new()
+    );
 }

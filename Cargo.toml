@@ -17,7 +17,7 @@ resolver = "2"
 # ── Shared package metadata ────────────────────────────────────────────────────
 [workspace.package]
 edition      = "2021"
-rust-version = "1.85"
+rust-version = "1.89"
 publish      = false
 
 # ── Shared build profiles ─────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ otelx            = { path = "crates/otelx" }
 # Data services — Valkey cache, Kafka broker (reliable, maintained drivers).
 # `redis` (redis-rs) speaks RESP to a Valkey server; `rdkafka` wraps librdkafka
 # (vendored + statically built, so the binary stays self-contained on cc-debian12).
-redis   = { version = "1.6", features = ["tokio-comp", "connection-manager"] }
+redis   = { version = "1.7", features = ["tokio-comp", "connection-manager"] }
 # libz-static links zlib into the binary so it runs on distroless/cc (which ships
 # glibc + libgcc but not libz.so.1). ssl/sasl stay off — PLAINTEXT only.
 rdkafka = { version = "0.39", features = ["tokio", "libz-static"] }

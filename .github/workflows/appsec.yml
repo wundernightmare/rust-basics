@@ -12,10 +12,10 @@ jobs:
   secrets:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # full history for gitleaks
-      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITLEAKS_CONFIG: .gitleaks.toml
           # gitleaks-action needs it to scan pull_request events (it lists the PR's commits)
@@ -25,30 +25,30 @@ jobs:
     runs-on: ubuntu-latest
     container: semgrep/semgrep
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: semgrep ci --config p/owasp-top-ten --config p/rust
 
   deps:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: stable
       # google/osv-scanner-action is a reusable workflow, not a step action, so
       # install the pinned scanner binary directly and run it.
-      - run: go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.3.8
+      - run: go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.6.0
       - run: osv-scanner scan --config=osv-scanner.toml --recursive .
 
   # Run cargo-deny on a normal (gnu) runner via install-action rather than the
   # EmbarkStudios container action: that container is musl, so rust-toolchain.toml's
-  # `channel = "1.98"` resolves to an uninstalled `1.98-…-musl` toolchain and
-  # cargo metadata fails. On the gnu runner rustup auto-installs 1.98.
+  # `channel = "1.99"` resolves to an uninstalled `1.99-…-musl` toolchain and
+  # cargo metadata fails. On the gnu runner rustup auto-installs 1.99.
   cargo-deny:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-deny
       - run: cargo deny check advisories bans licenses sources
@@ -59,8 +59,8 @@ jobs:
       matrix:
         dockerfile: [crates/ping/Dockerfile, crates/heartbeat/Dockerfile]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         with:
           dockerfile: ${{ matrix.dockerfile }}
           config: .hadolint.yaml
