@@ -49,7 +49,7 @@ async fn version_reports_service() {
     assert_eq!(resp.status(), StatusCode::OK);
     let body: VersionResponse = json(resp).await;
     assert_eq!(body.service, "ping");
-    assert!(!body.version.is_empty());
+    assert_ne!(body.version, "");
 }
 
 #[tokio::test]
