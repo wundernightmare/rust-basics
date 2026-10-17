@@ -25,7 +25,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 ARG RUST_VERSION=1.99
-ARG DEBIAN_CODENAME=bookworm
+ARG DEBIAN_CODENAME=trixie
 
 # ── Stage 1 – chef ─────────────────────────────────────────────────────────────
 FROM rust:${RUST_VERSION}-${DEBIAN_CODENAME} AS chef
@@ -55,7 +55,7 @@ RUN cargo build --profile dist --bin ping \
 # ── Stage 4 – runtime ──────────────────────────────────────────────────────────
 # distroless/cc carries glibc + libgcc for a dynamically-linked Rust binary —
 # no shell, no package manager, nothing writable outside /tmp.
-FROM gcr.io/distroless/cc-debian12:nonroot AS runtime
+FROM gcr.io/distroless/cc-debian13:nonroot AS runtime
 
 LABEL org.opencontainers.image.title="ping" \
       org.opencontainers.image.description="Minimal ping/pong HTTP service (rust-basics)" \

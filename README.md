@@ -220,7 +220,7 @@ grype, `--fail-on high`) → `just docker-sign/verify SVC TAG` (cosign key-mode)
 
 Each service has a multi-stage **cargo-chef** distroless Dockerfile (dep layer
 cooked separately so source edits don't re-compile dependencies; debug info
-split + stripped; `gcr.io/distroless/cc-debian12:nonroot`, uid 65532, no shell).
+split + stripped; `gcr.io/distroless/cc-debian13:nonroot`, uid 65532, no shell).
 Build context is the **workspace root**:
 
 ```sh
@@ -235,7 +235,7 @@ just stack-down
 
 `tasks`/`consumer` build the same way; `rdkafka`'s librdkafka (and zlib, via the
 `libz-static` feature) is vendored and statically linked, so they too run on the
-`cc-debian12` base with nothing beyond glibc/libgcc. `docker/deps.yml` runs
+`cc-debian13` base with nothing beyond glibc/libgcc. `docker/deps.yml` runs
 Valkey + Redpanda (the Kafka API broker, dual listeners so both host processes and in-network
 containers reach the broker); `docker/stack.yml` runs the app images against it.
 

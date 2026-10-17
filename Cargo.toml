@@ -53,7 +53,7 @@ otelx            = { path = "crates/otelx" }
 
 # Data services — Valkey cache, Kafka broker (reliable, maintained drivers).
 # `redis` (redis-rs) speaks RESP to a Valkey server; `rdkafka` wraps librdkafka
-# (vendored + statically built, so the binary stays self-contained on cc-debian12).
+# (vendored + statically built, so the binary stays self-contained on cc-debian13).
 redis   = { version = "1.7", features = ["tokio-comp", "connection-manager"] }
 # libz-static links zlib into the binary so it runs on distroless/cc (which ships
 # glibc + libgcc but not libz.so.1). ssl/sasl stay off — PLAINTEXT only.
