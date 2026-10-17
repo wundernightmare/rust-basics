@@ -63,11 +63,11 @@ uuid    = { version = "1", features = ["v4"] }
 
 # Distributed tracing (OpenTelemetry). The versions across the otel ecosystem are
 # tightly coupled — bump them together.
-opentelemetry                   = "0.32"
-opentelemetry_sdk               = { version = "0.32", features = ["rt-tokio"] }
-opentelemetry-otlp              = { version = "0.32", features = ["grpc-tonic", "trace"] }
-opentelemetry-semantic-conventions = "0.32"
-tracing-opentelemetry           = "0.33"
+opentelemetry                   = "0.33"
+opentelemetry_sdk               = { version = "0.33", features = ["rt-tokio"] }
+opentelemetry-otlp              = { version = "0.33", features = ["grpc-tonic", "trace"] }
+opentelemetry-semantic-conventions = "0.33"
+tracing-opentelemetry           = "0.34"
 
 # Runtime
 tokio       = { version = "1", features = ["full"] }
