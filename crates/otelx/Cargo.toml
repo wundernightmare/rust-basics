@@ -17,3 +17,6 @@ tracing-subscriber.workspace                 = true
 serde.workspace                              = true
 envy.workspace                               = true
 anyhow.workspace                             = true
+
+[dev-dependencies]
+tokio.workspace = true
