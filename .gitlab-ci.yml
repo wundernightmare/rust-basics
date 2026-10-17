@@ -13,7 +13,7 @@ stages:
   - docker
 
 default:
-  image: rust:1.99-bookworm
+  image: rust:1.99-trixie
 
 # ── check: rustfmt gate + clippy (pedantic/perf/suspicious denied) ────────────
 fmt:
@@ -83,7 +83,7 @@ sast:
 
 dependency-scanning:
   stage: security
-  image: golang:1.27-bookworm
+  image: golang:1.27-trixie
   script:
     - go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.6.0
     - "$(go env GOPATH)/bin/osv-scanner scan --config=osv-scanner.toml --recursive ."

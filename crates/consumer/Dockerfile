@@ -18,7 +18,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 ARG RUST_VERSION=1.99
-ARG DEBIAN_CODENAME=bookworm
+ARG DEBIAN_CODENAME=trixie
 
 FROM rust:${RUST_VERSION}-${DEBIAN_CODENAME} AS chef
 RUN cargo install cargo-chef --locked
@@ -37,7 +37,7 @@ RUN cargo build --profile dist --bin consumer \
  && objcopy --strip-debug --add-gnu-debuglink=target/dist/consumer.debug target/dist/consumer \
  && mkdir -p /out && cp target/dist/consumer /out/consumer
 
-FROM gcr.io/distroless/cc-debian12:nonroot AS runtime
+FROM gcr.io/distroless/cc-debian13:nonroot AS runtime
 
 LABEL org.opencontainers.image.title="consumer" \
       org.opencontainers.image.description="Kafka consumer worker for task.created events (rust-basics)" \
