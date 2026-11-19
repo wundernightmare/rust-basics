@@ -22,3 +22,11 @@ serde_yaml_ng in httpx for YAML config parsing — runtime, but the advisory is
 about maintenance status, not an exploitable bug. Remove when httpx migrates
 off serde_yaml_ng or a maintained fork ships a fixed release.
 """
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0440"
+reason = "astral-tokio-tar 0.6.4 is transitive via testcontainers. The advisory marks it unmaintained and describes no exploitable bug. Remove when testcontainers adopts tar-codec or the package leaves the tree."
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0543"
+reason = "chrono 0.4.45 is transitive via testcontainers. The advisory marks it unmaintained and describes no exploitable bug. Remove when chrono leaves the dependency tree or is replaced."
