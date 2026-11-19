@@ -10,7 +10,7 @@
 
 [tools]
 rust = "1.99"
-node = "24.22"
+node = "26.13.1"
 k6   = "2.3.0"
 
 # Optional Rust build cache — shared across clones / worktrees. Pinned here so
